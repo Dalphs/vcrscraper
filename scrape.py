@@ -40,5 +40,5 @@ def insert(quote):
         mycursor.execute(sql, val)
     db.commit()
 
-getData("enteraction")
+getData("enteraction aps")
 db.close()
