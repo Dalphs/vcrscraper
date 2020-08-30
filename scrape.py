@@ -11,23 +11,29 @@ db = mysql.connector.connect(
 mycursor = db.cursor()
 
 def getData(name):
-    URL = "https://datacvr.virk.dk/data/visninger?soeg=" + parseName(name) + "&oprettet=null&ophoert=null&branche=&type=virksomhed&language=da"
+    URL = "https://datacvr.virk.dk/data/visninger?soeg=" + parseName(name) + "&oprettet=null&ophoert=null&branche=&type=virksomhed&sortering=navnasc&language=da"
     r = requests.get(URL)
     # Create a BeautifulSoup object
     soup = BeautifulSoup(r.content, "html.parser")
 
     table = soup.find('div', attrs = {'class':'name'})
 
+    sortingDiv = soup.find('div', attrs = {'class':'sorteringsvalg virksomhed'})
+    numberOfPages = sortingDiv.label.next_sibling.text
 
     quotes=[]  # a list to store quotes
     table = soup.find('div', attrs = {'id':'soegeresultat'})
     for row in table.find_all('div', attrs = {'class':'virk'}):
         if len(row) > 0:
-            quote = {}
-            quote["name"] = row.div.h2.a.text
-            part = row.find("div", attrs = {"class" : "cvr"})
-            quote["cvr"] = part.p.next_sibling.next_sibling.text
-            quotes.append(quote)
+            stateDiv = row.find("div", attrs = {"class" : "status"})
+            state = stateDiv.p.next_sibling.next_sibling.text
+            if(state == "Normal" or state == "Aktiv")
+                quote = {}
+                quote["name"] = row.div.h2.a.text
+                part = row.find("div", attrs = {"class" : "cvr"})
+                quote["cvr"] = part.p.next_sibling.next_sibling.text
+                quotes.append(quote)
+            
     insert(quotes)
             
 def parseName(name):
