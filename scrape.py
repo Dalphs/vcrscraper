@@ -38,16 +38,15 @@ def searchCompany(name):
 def extractData(site, name):
     quotes=[]  # a list to store quotes
     table = site.find('div', attrs = {'id':'soegeresultat'})
-    for row in table.find_all('div', attrs = {'class':'virk'}):
-        if len(row) > 0:
-            str(row).replace("<br>", " ")
-            quote = {}
-            quote["name"] = row.div.h2.a.text
-            part = row.find("div", attrs = {"class" : "cvr"})
-            quote["cvr"] = part.p.next_sibling.next_sibling.text
-            part = row.find("p", attrs = {"class" : "address"})
-            quote["address"] = part.text
-            quotes.append(quote)
+    for row in table.find_all('div', attrs = {'class':'virk'}):  
+        str(row).replace("<br>", " ")
+        quote = {}
+        quote["name"] = row.div.h2.a.text
+        part = row.find("div", attrs = {"class" : "cvr"})
+        quote["cvr"] = part.p.next_sibling.next_sibling.text
+        part = row.find("p", attrs = {"class" : "address"})
+        quote["address"] = part.text
+        quotes.append(quote)
             
     insert(quotes, name)
             
@@ -55,11 +54,12 @@ def parseName(name):
     return name.replace(' ', '%20')
 
 def insert(quote, name):
-    sql = "INSERT INTO info (name, cvr, address, searchquery) VALUES (%s, %s, %s, %s)"
+    sql = "INSERT INTO info (name, cvr, address, searchquery, status) VALUES (%s, %s, %s, %s, %s)"
+    numberOfResults = len(quote)
     for data in quote:
-        val = (data["name"], data["cvr"], data["address"], name)
+        val = (data["name"], data["cvr"], data["address"], name, 'keep' if numberOfResults == 1 else 'pending')
         mycursor.execute(sql, val)
     db.commit()
 
-searchCompany("falck")
+searchCompany("enteraction aps")
 db.close()
